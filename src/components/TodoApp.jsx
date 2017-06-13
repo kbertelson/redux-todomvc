@@ -16,18 +16,31 @@ export class TodoApp extends React.Component {
     }
     return 0;
   }
+  getNbItems() {
+    if (this.props.todos) { return this.props.todos.size; }
+    return 0;
+  }
   render() {
-    return <div>
+    let todoTools = null;
+    if (this.getNbItems() > 0) {
+      todoTools = <TodoTools  changeFilter={this.props.changeFilter}
+                    filter={this.props.filter}
+                    nbActiveItems={this.getNbActiveItems()}
+                    clearCompleted={this.props.clearCompleted}/>;
+    } else {
+      todoTools = '';
+    }
+
+    return (
+    <div>
       <section className="todoapp">
         <TodoHeader addItem={this.props.addItem}/>
         <TodoList {...this.props} />
-        <TodoTools  changeFilter={this.props.changeFilter}
-                    filter={this.props.filter}
-                    nbActiveItems={this.getNbActiveItems()}
-                    clearCompleted={this.props.clearCompleted}/>
+        {todoTools}
       </section>
       <Footer />
     </div>
+    )
   }
 };
 

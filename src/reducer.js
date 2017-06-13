@@ -1,4 +1,4 @@
-import {Map} from 'immutable';
+import {fromJS, Map, List} from 'immutable';
 
 function findItemIndex(state, itemId) {
   return state.get('todos').findIndex(
@@ -51,18 +51,13 @@ function doneEditing(state, itemId, newText) {
   return state.update('todos', todos => todos.set(itemIndex, updatedItem));
 }
 
-function clearCompleted(state) {
-  return state.update('todos',
-    (todos) => todos.filterNot(
-      (item) => item.get('status') === 'completed'
-    )
-  );
-}
+function addItem(state, text, nextId) {
+  const newItem = Map({id: nextId, text: text, status: 'active'});
 
-function addItem(state, text) {
-  const itemId = state.get('todos').reduce((maxId, item) => Math.max(maxId,item.get('id')), 0) + 1;
-  const newItem = Map({id: itemId, text: text, status: 'active'});
-  return state.update('todos', (todos) => todos.push(newItem));
+  return state.withMutations(function (mutState) {
+    mutState.update('todos', (todos) => todos.push(newItem))
+            .set('nextId', nextId + 1);
+  });
 }
 
 function deleteItem(state, itemId) {
@@ -71,6 +66,13 @@ function deleteItem(state, itemId) {
       (item) => item.get('id') === itemId
     )
   );
+}
+
+function addAllItems(state, todos) {
+  const initState = state.set('todos', fromJS(todos));
+
+  const nextId = initState.get('todos').reduce((maxId, item) => Math.max(maxId,item.get('id')), 0) + 1;
+  return initState.set('nextId', nextId);
 }
 
 export default function(state = Map(), action) {
@@ -87,12 +89,15 @@ export default function(state = Map(), action) {
       return cancelEditing(state, action.itemId);
     case 'DONE_EDITING':
       return doneEditing(state, action.itemId, action.newText);
-    case 'CLEAR_COMPLETED':
-      return clearCompleted(state);
     case 'ADD_ITEM':
-      return addItem(state, action.text);
+      return addItem(state, action.text, action.nextId);
     case 'DELETE_ITEM':
       return deleteItem(state, action.itemId);
+    case 'ADD_ALL_ITEMS':
+      return addAllItems(state, action.todos);
   }
   return state;
 }
+
+
+

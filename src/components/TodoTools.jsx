@@ -10,6 +10,9 @@ export default class TodoTools extends React.Component {
   getNbItemsLeft() {
     return this.props.nbActiveItems || 0;
   }
+  getItemText() {
+    return this.props.nbActiveItems == 1 ? 'item' : 'items';
+  }
   isSelected(filter) {
     return this.props.selectedFilter === filter || false;
   }
@@ -19,7 +22,7 @@ export default class TodoTools extends React.Component {
   render() {
     return <footer className="footer">
       <span className="todo-count">
-        <strong>{this.getNbItemsLeft()}</strong> items left
+        <strong>{this.getNbItemsLeft()}</strong> {this.getItemText()} left
       </span>
       <ul className="filters">
         <li>
